@@ -28,15 +28,30 @@ class ExamplesNavigator:
     def __getitem__(self, index):
         return self.originals_paths[index]
 
+@app.route("/next")
+def navigate_next():
+    navigator.next()
+    return {"index": navigator.current_index}, 200
 
-@app.route("/example/<index>")
-def get_point_cloud(index):
+@app.route("/prev")
+def navigate_prev():
+    navigator.prev()
+    return {"index": navigator.current_index}, 200 
+
+@app.route("/example/<index>/<name>")
+def get_point_cloud(index, name):
     original_path = navigator[int(index)]
     scene_path = os.path.dirname(original_path)
+    print(scene_path)
     gen_0 = os.path.join(scene_path, "generated_0.txt")
     gen_1 = os.path.join(scene_path, "generated_1.txt")
     if os.path.exists(original_path):
-        return send_file(original_path, mimetype='text/plain')
+        if name == "original":
+            return send_file(original_path, mimetype='text/plain')
+        elif name == "generated_0":
+            return send_file(gen_0, mimetype='text/plain')
+        elif name == "generated_1":
+            return send_file(gen_1, mimetype='text/plain')
     else:
         print("No file found")
     return {"error": "File not found"}, 404
